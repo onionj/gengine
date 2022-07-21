@@ -1,5 +1,8 @@
 from typing import Literal, Union
 
+from colorama import init
+init() # for windows
+
 from colorama import Fore as ForeColor
 from colorama import Back as BackColor
 
