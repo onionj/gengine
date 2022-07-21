@@ -133,7 +133,7 @@ ____________|###|'|#|_____-."%`;_________________
         states={
             "open": State(
                 name="open",
-                back_color=BackColor.CYAN,
+                fore_color=ForeColor.CYAN,
                 shapes=[
                     Shape(
                         """
