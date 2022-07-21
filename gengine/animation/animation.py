@@ -71,14 +71,10 @@ class Animation(PrintTemplate):
         lines = line * self.template_y
         return lines
 
-    def _sorted_objs(self) -> dict[int, BaseObj]:
-        # TODO: sort obj by -obj.priority
-
-        sorted_objs = {}
-        for uid, obj in self._objs.items():
-            if obj.show:
-                sorted_objs.update({uid: obj})
-
+    def _sorted_objs(self) -> list[BaseObj]:
+        """sort `Obj` by priority and return a new list"""
+        filtered_objs = filter(lambda x: x.show, self._objs.values())
+        sorted_objs = sorted(filtered_objs, key=lambda x: x.priority) 
         return sorted_objs
 
     def _new_main_window(self) -> list[list[str]]:
@@ -112,12 +108,12 @@ class Animation(PrintTemplate):
             self.show_objects()
 
     def show_objects(self):
-        for _, obj in self._sorted_objs().items():
+        for obj in self._sorted_objs():
 
             shape = obj.get_shape()
             if not shape:
                 continue
-
+            obj.body_locations = []
             shape_lines = shape.value.split("\n")
 
             for line_index, line in enumerate(shape_lines):

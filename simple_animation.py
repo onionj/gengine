@@ -2,11 +2,14 @@ import time
 from gengine.animation import Animation, BaseObj, State, Shape
 
 if __name__ == "__main__":
+    MAIN_SCREEN_X = 50
+    MAIN_SCREEN_Y = 8
 
     # create new object, his name is saman!
     saman = BaseObj(
         name="saman",
         active_state="stand",
+        priority=1,
         states={
             "stand": State(
                 name="stand",
@@ -31,14 +34,14 @@ if __name__ == "__main__":
                 name="by",
                 shapes=[
                     Shape(
-                        """
+                        """  by
  0 /
 /?
 /|
     """
                     ),
                     Shape(
-                        """
+                        """  By
  O)
 /?
 /|
@@ -66,7 +69,7 @@ if __name__ == "__main__":
                 ],
             ),
             "walk-left": State(
-                name="walk-right",
+                name="walk-left",
                 shapes=[
                     Shape(
                         """
@@ -87,16 +90,62 @@ if __name__ == "__main__":
         },
     )
 
+    # create simple background
+    background = BaseObj(
+        name="background",
+        active_state="light",
+        priority=0,
+        states={
+            "light": State(
+                name="light",
+                shapes=[
+                    Shape(
+                        """ [Go to Portal animation]
+
+            |=======|                         (-|
+            |       |                        ( -|
+            |   |-| |                       (|._|
+____________|   |'| |_____-."%`;__________ ("."\|
+"""
+                    ),
+                    Shape(
+                        """  Go to Portal animation
+
+            |=======|                         ('|
+            |       |                        (" |
+            |   |-| |                       ( - |
+____________|   |'| |_____-."%`;__________ (""; |
+"""
+                    ),
+                    Shape(
+                        """ [Go to Portal animation]
+
+            |=======|                         (.|
+            |       |                        (_ |
+            |   |-| |                       (-._|
+____________|   |'| |_____-."%`;__________ (-: .|
+"""
+                    ),
+                    
+                ],
+            )
+        },
+    )
+
     # create main window
     animation = Animation(
-        template_x=50, template_y=5, sleep_time=0.2, background_material=" "
+        template_x=MAIN_SCREEN_X, template_y=MAIN_SCREEN_Y, sleep_time=0.2, background_material=" "
     )
 
     # add our object to main window
     animation.add_object(saman)
+    animation.add_object(background)
 
     # start main screen
     animation.start_main_screen_loop()
+    
+    # move object saman 2 line sub
+    saman.y += 2
 
     time.sleep(2)
     # 02
