@@ -3,7 +3,7 @@ import threading
 from itertools import chain
 
 from ..utils.uid import _UID
-from .obj import BaseObj
+from .obj import BaseObj, BackColor, ForeColor
 
 
 class PrintTemplate:
@@ -45,8 +45,8 @@ class Animation(PrintTemplate):
         template_y: int = 100,
         sleep_time=0.5,
         background_material: str = " ",
-        background_material_color: str = None,
-        background_color: str = None,
+        background_material_color: str = ForeColor.RESET,
+        background_color: str = BackColor.RESET,
     ):
         self.template_x = template_x
         self.template_y = template_y
@@ -54,6 +54,8 @@ class Animation(PrintTemplate):
         self.sleep_time = sleep_time
 
         self.background_material = background_material[0]
+        self.background_material_color = background_material_color
+        self.background_color = background_color
 
         self._main_window = self._new_main_window()
 
@@ -74,12 +76,16 @@ class Animation(PrintTemplate):
     def _sorted_objs(self) -> list[BaseObj]:
         """sort `Obj` by priority and return a new list"""
         filtered_objs = filter(lambda x: x.show, self._objs.values())
-        sorted_objs = sorted(filtered_objs, key=lambda x: x.priority) 
+        sorted_objs = sorted(filtered_objs, key=lambda x: x.priority)
         return sorted_objs
 
     def _new_main_window(self) -> list[list[str]]:
         return [
-            [self.background_material] * self.template_x for _ in range(self.template_y)
+            [
+                f"{self.background_material_color}{self.background_color}{self.background_material}"
+            ]
+            * self.template_x
+            for _ in range(self.template_y)
         ]
 
     def add_object(self, obj: "BaseObj"):
@@ -110,7 +116,9 @@ class Animation(PrintTemplate):
     def show_objects(self):
         for obj in self._sorted_objs():
 
-            shape = obj.get_shape()
+            state = obj.get_active_state()
+            shape = state.next_shape()
+
             if not shape:
                 continue
             obj.body_locations = []
@@ -134,7 +142,12 @@ class Animation(PrintTemplate):
 
                     obj.body_locations.append((char_x_locaion, char_y_locaion))
 
-                    self._main_window[char_y_locaion][char_x_locaion] = char
+                    if state.back_color != BackColor.RESET:
+                        char = f"{state.back_color}{char}"
+
+                    self._main_window[char_y_locaion][
+                        char_x_locaion
+                    ] = f"{state.fore_color}{char}"
 
         row = chain.from_iterable(self._main_window)
         self.print_lines(*row)

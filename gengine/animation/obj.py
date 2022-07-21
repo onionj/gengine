@@ -1,3 +1,8 @@
+from typing import Literal, Union
+
+from colorama import Fore as ForeColor
+from colorama import Back as BackColor
+
 from ..utils.uid import _UID
 
 
@@ -14,9 +19,17 @@ class Shape:
 class State:
     """Objects State"""
 
-    def __init__(self, name: str, shapes: list[Shape], color_code: str = None):
+    def __init__(
+        self,
+        name: str,
+        shapes: list[Shape],
+        fore_color: str = ForeColor.RESET,
+        back_color: str = BackColor.RESET,
+    ):
+
         self.shapes = shapes
-        self.color_code = color_code
+        self.fore_color = fore_color
+        self.back_color = back_color
         self.name = name
 
         self.__next_shape_idx = 0
@@ -24,7 +37,7 @@ class State:
     def __str__(self):
         return f"<class State, name: {self.name}, Color:{self.color}, Shapes count:{len(self.shapes)}>"
 
-    def active_shape(self) -> Shape:
+    def next_shape(self) -> Shape:
         """ring loop for return shape"""
 
         shapes_count = len(self.shapes)
@@ -69,12 +82,11 @@ class BaseObj:
     def __str__(self):
         return f"""<class BaseObj, uid:{self.uid}, x:{self.x}, y:{self.y}, show:{self.show}, priority:{self.priority}, states_count:{len(self.states)}, active_state:{self.active_state}>"""
 
-    def state_names(self) -> list[str]:
+    def states_name(self) -> list[str]:
         return self.states.keys()
 
-    def get_shape(self) -> Shape:
+    def get_active_state(self) -> Union[State, Literal[False]]:
         active_state = self.states.get(self.active_state)
-
         if active_state:
-            return active_state.active_shape()
+            return active_state
         return False
