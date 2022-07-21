@@ -1,6 +1,6 @@
-
 class _UID:
     """Generate unique id"""
+
     __last_uid: int = 0
 
     @classmethod

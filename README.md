@@ -1,5 +1,5 @@
 # gengine
 
-Python Simple CLI Game Engine Framework
+Python CLI Game Engine Framework
 
-...
+comiing soon...
