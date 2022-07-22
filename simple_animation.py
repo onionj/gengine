@@ -64,14 +64,14 @@ ____________|###|'|#|_____-."%`;_________________
                 fore_color=ForeColor.RED,
                 shapes=[
                     Shape(
-                        """  (goodbye)
+                        """  (goodbye )
  0 /
 /?
 /|
     """
                     ),
                     Shape(
-                        """  (goodbye)
+                        """  ( goodbye)
  O)
 /?
 /|
@@ -179,7 +179,7 @@ ____________|###|'|#|_____-."%`;_________________
     animation.add_object(saman)
 
     # start main screen
-    animation.start_main_screen_loop()
+    animation.start()
 
     time.sleep(1)
 

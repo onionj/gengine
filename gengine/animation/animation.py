@@ -1,10 +1,10 @@
 import time
 import threading
 from itertools import chain
-from typing import Literal, Union, List, Dict
+from typing import List, Dict
 
 from ..utils.uid import _UID
-from .obj import BaseObj, BackColor, ForeColor
+from .obj import BaseObj, Shape, State, BackColor, ForeColor
 
 
 class PrintTemplate:
@@ -51,14 +51,14 @@ class Animation(PrintTemplate):
     ):
         self.template_x = template_x
         self.template_y = template_y
-        self._objs: dict[int, "BaseObj"] = {}
+        self._objs: Dict[int, "BaseObj"] = {}
         self.sleep_time = sleep_time
 
         self.background_material = background_material[0]
         self.background_material_color = background_material_color
         self.background_color = background_color
 
-        self._main_window = self._new_main_window()
+        self._main_window = None
 
         self.__active_main_screen_loop_id = None
         self.__is_main_loop_run = False
@@ -74,13 +74,7 @@ class Animation(PrintTemplate):
         lines = line * self.template_y
         return lines
 
-    def _sorted_objs(self) -> List[BaseObj]:
-        """sort `Obj` by priority and return a new list"""
-        filtered_objs = filter(lambda x: x.show, self._objs.values())
-        sorted_objs = sorted(filtered_objs, key=lambda x: x.priority)
-        return sorted_objs
-
-    def _new_main_window(self) -> List[List[str]]:
+    def __new_main_window(self) -> List[List[str]]:
         return [
             [
                 f"{self.background_material_color}{self.background_color}{self.background_material}"
@@ -89,34 +83,22 @@ class Animation(PrintTemplate):
             for _ in range(self.template_y)
         ]
 
-    def add_object(self, obj: "BaseObj"):
-        self._objs.update({obj.uid: obj})
+    def __sorted_objs(self) -> List[BaseObj]:
+        """sort `Obj` by priority and return a new list"""
+        filtered_objs = filter(lambda x: x.show, self._objs.values())
+        sorted_objs = sorted(filtered_objs, key=lambda x: x.priority)
+        return sorted_objs
 
-    def stop(self, clear: bool = False, print_all_time=False):
-        self.__is_main_loop_run = False
+    def _add_object_to_main_window(self, obj: BaseObj):
+        body_locations = []
 
-        if clear:
-            self.clear_lines()
+        state = obj.get_active_state()
+        shape = state.next_shape()
 
-        if print_all_time:
-            print(f"End after {time.time() - self.__start_time:2f} seconds.")
+        if not shape:
+            return
 
-    def start_main_screen_loop(self):
-        self.__is_main_loop_run = True
-        self.__active_main_screen_loop_id = _UID.get_uid()
-        threading.Thread(
-            target=self._main_screen_loop, args=[self.__active_main_screen_loop_id]
-        ).start()
-
-    def _main_screen_loop(self, screem_id):
-        while (
-            self.__is_main_loop_run and self.__active_main_screen_loop_id == screem_id
-        ):
-            self.show_objects()
-    
-
-    def show_line(self, shape_lines, obj, state):
-        for line_index, line in enumerate(shape_lines):
+        for line_index, line in enumerate(shape.value.split("\n")):
             for char_index, char in enumerate(line):
 
                 if char in ["", " "]:
@@ -132,7 +114,7 @@ class Animation(PrintTemplate):
                 ):
                     continue
 
-                obj.body_locations.append((char_x_locaion, char_y_locaion))
+                body_locations.append((char_x_locaion, char_y_locaion))
 
                 if state.back_color != BackColor.RESET:
                     char = f"{state.back_color}{char}"
@@ -141,21 +123,45 @@ class Animation(PrintTemplate):
                     char_x_locaion
                 ] = f"{state.fore_color}{char}"
 
+        obj.body_locations = body_locations
 
-    def show_objects(self):
-        for obj in self._sorted_objs():
+    def _update_main_window(self):
+        for obj in self.__sorted_objs():
+            self._add_object_to_main_window(obj)
 
-            state = obj.get_active_state()
-            shape = state.next_shape()
-
-            if not shape:
-                continue
-            obj.body_locations = []
-            shape_lines = shape.value.split("\n")
-            self.show_line(shape_lines, obj, state)
-            
+    def _show_main_window(self):
+        # extract lists items
         row = chain.from_iterable(self._main_window)
+        # show frame on screen
         self.print_lines(*row)
-        time.sleep(self.sleep_time)
 
-        self._main_window = self._new_main_window()
+    def _main_screen_loop(self, screem_id):
+        while (
+            self.__is_main_loop_run and self.__active_main_screen_loop_id == screem_id
+        ):
+            self._main_window = self.__new_main_window()
+            self._update_main_window()
+            self._show_main_window()
+            time.sleep(self.sleep_time)
+
+    def add_object(self, obj: "BaseObj"):
+        self._objs.update({obj.uid: obj})
+
+    def start(self):
+        """start background main loop"""
+        self.__is_main_loop_run = True
+        self.__active_main_screen_loop_id = _UID.get_uid()
+        thread = threading.Thread(
+            target=self._main_screen_loop, args=[self.__active_main_screen_loop_id]
+        )
+        thread.start()
+
+    def stop(self, clear: bool = False, print_all_time=False):
+        """stop background main loop"""
+        self.__is_main_loop_run = False
+
+        if clear:
+            self.clear_lines()
+
+        if print_all_time:
+            print(f"End after {time.time() - self.__start_time:2f} seconds.")
