@@ -59,19 +59,19 @@ ____________|###|'|#|_____-."%`;_________________
                     ),
                 ],
             ),
-            "by": State(
-                name="by",
+            "say-goodbye": State(
+                name="say-goodbye",
                 fore_color=ForeColor.RED,
                 shapes=[
                     Shape(
-                        """  (by)
+                        """  (goodbye)
  0 /
 /?
 /|
     """
                     ),
                     Shape(
-                        """  (By)
+                        """  (goodbye)
  O)
 /?
 /|
@@ -210,7 +210,7 @@ ____________|###|'|#|_____-."%`;_________________
         time.sleep(0.02)
 
     # change state
-    saman.active_state = "by"
+    saman.active_state = "say-goodbye"
     time.sleep(1)
 
     # change state and move object to right

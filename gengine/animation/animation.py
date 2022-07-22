@@ -1,6 +1,7 @@
 import time
 import threading
 from itertools import chain
+from typing import Literal, Union, List, Dict
 
 from ..utils.uid import _UID
 from .obj import BaseObj, BackColor, ForeColor
@@ -73,13 +74,13 @@ class Animation(PrintTemplate):
         lines = line * self.template_y
         return lines
 
-    def _sorted_objs(self) -> list[BaseObj]:
+    def _sorted_objs(self) -> List[BaseObj]:
         """sort `Obj` by priority and return a new list"""
         filtered_objs = filter(lambda x: x.show, self._objs.values())
         sorted_objs = sorted(filtered_objs, key=lambda x: x.priority)
         return sorted_objs
 
-    def _new_main_window(self) -> list[list[str]]:
+    def _new_main_window(self) -> List[List[str]]:
         return [
             [
                 f"{self.background_material_color}{self.background_color}{self.background_material}"
@@ -112,6 +113,34 @@ class Animation(PrintTemplate):
             self.__is_main_loop_run and self.__active_main_screen_loop_id == screem_id
         ):
             self.show_objects()
+    
+
+    def show_line(self, shape_lines, obj, state):
+        for line_index, line in enumerate(shape_lines):
+            for char_index, char in enumerate(line):
+
+                if char in ["", " "]:
+                    continue
+
+                char_x_locaion = char_index + obj.x
+                char_y_locaion = line_index + obj.y
+
+                # if Out of page
+                if (
+                    char_x_locaion >= self.template_x
+                    or char_y_locaion >= self.template_y
+                ):
+                    continue
+
+                obj.body_locations.append((char_x_locaion, char_y_locaion))
+
+                if state.back_color != BackColor.RESET:
+                    char = f"{state.back_color}{char}"
+
+                self._main_window[char_y_locaion][
+                    char_x_locaion
+                ] = f"{state.fore_color}{char}"
+
 
     def show_objects(self):
         for obj in self._sorted_objs():
@@ -123,32 +152,8 @@ class Animation(PrintTemplate):
                 continue
             obj.body_locations = []
             shape_lines = shape.value.split("\n")
-
-            for line_index, line in enumerate(shape_lines):
-                for char_index, char in enumerate(line):
-
-                    if char in ["", " "]:
-                        continue
-
-                    char_x_locaion = char_index + obj.x
-                    char_y_locaion = line_index + obj.y
-
-                    # if Out of page
-                    if (
-                        char_x_locaion >= self.template_x
-                        or char_y_locaion >= self.template_y
-                    ):
-                        continue
-
-                    obj.body_locations.append((char_x_locaion, char_y_locaion))
-
-                    if state.back_color != BackColor.RESET:
-                        char = f"{state.back_color}{char}"
-
-                    self._main_window[char_y_locaion][
-                        char_x_locaion
-                    ] = f"{state.fore_color}{char}"
-
+            self.show_line(shape_lines, obj, state)
+            
         row = chain.from_iterable(self._main_window)
         self.print_lines(*row)
         time.sleep(self.sleep_time)
