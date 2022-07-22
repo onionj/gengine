@@ -1,4 +1,4 @@
-from typing import Literal, Union
+from typing import Literal, Union, List, Dict
 
 from colorama import init
 init() # for windows
@@ -25,7 +25,7 @@ class State:
     def __init__(
         self,
         name: str,
-        shapes: list[Shape],
+        shapes: List[Shape],
         fore_color: str = ForeColor.RESET,
         back_color: str = BackColor.RESET,
     ):
@@ -64,7 +64,7 @@ class BaseObj:
     def __init__(
         self,
         name: str,
-        states: dict[str, State],
+        states: Dict[str, State],
         active_state: str,
         x: int = 1,
         y: int = 1,
@@ -79,13 +79,13 @@ class BaseObj:
         self.priority = priority
         self.show = show
 
-        self.body_locations: list[tuple[int, int]] = []  # [(x, y),]
+        self.body_locations: List[tuple[int, int]] = []  # [(x, y),]
         self.uid: int = _UID.get_uid()
 
     def __str__(self):
         return f"""<class BaseObj, uid:{self.uid}, x:{self.x}, y:{self.y}, show:{self.show}, priority:{self.priority}, states_count:{len(self.states)}, active_state:{self.active_state}>"""
 
-    def states_name(self) -> list[str]:
+    def states_name(self) -> List[str]:
         return self.states.keys()
 
     def get_active_state(self) -> Union[State, Literal[False]]:
