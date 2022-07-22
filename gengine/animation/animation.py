@@ -130,7 +130,8 @@ class Animation(PrintTemplate):
             self._add_object_to_main_window(obj)
 
     def _show_main_window(self):
-        # extract lists items
+        """print object on terminal"""
+        # extract lists items. for example, convert [[1,2,3],[4,5,6]] to [1,2,3,4,5,6]
         row = chain.from_iterable(self._main_window)
         # show frame on screen
         self.print_lines(*row)
