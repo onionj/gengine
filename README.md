@@ -2,4 +2,8 @@
 
 Python CLI Game Engine Framework
 
-comiing soon...
+
+## TODO
+
+- [x] create animation
+- [ ] actions
