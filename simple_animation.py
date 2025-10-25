@@ -4,7 +4,7 @@ from gengine.animation import Animation, BaseObj, State, Shape, BackColor, ForeC
 
 if __name__ == "__main__":
     MAIN_SCREEN_X = 50
-    MAIN_SCREEN_Y = 10
+    MAIN_SCREEN_Y = 14
 
     # create simple background
     background = BaseObj(
@@ -16,12 +16,16 @@ if __name__ == "__main__":
                 name="light",
                 shapes=[
                     Shape(
-                        """ 
-            /-------\\
-            |=======|                     
-            |#######|                     
-            |###|-|#|                     
-____________|###|'|#|_____-."%`;_________________
+                        """
+                /\\       
+               /--\\     
+              /----\\      
+             /------\\
+            /--------\\
+            |= ### =#|                     
+            |########|                     
+            |###|-|##|                     
+____________|###|'|##|_____-."%`;_________________
 
 [Go to Portal animation]
 """
@@ -37,7 +41,7 @@ ____________|###|'|#|_____-."%`;_________________
         active_state="stand",
         priority=3,
         x=2,
-        y=3,
+        y=7,
         states={
             "stand": State(
                 name="stand",
@@ -113,7 +117,7 @@ ____________|###|'|#|_____-."%`;_________________
                     Shape(
                         """
  O
- \?)
+ \\?)
  /|
     """
                     ),
@@ -128,7 +132,7 @@ ____________|###|'|#|_____-."%`;_________________
         active_state="open",
         priority=4,
         x=MAIN_SCREEN_X - 6,
-        y=2,
+        y=6,
         show=False,
         states={
             "open": State(
@@ -140,7 +144,7 @@ ____________|###|'|#|_____-."%`;_________________
    |-|
   (--)
  |=|_|
-|"."\)
+|"."\\)
 """
                     ),
                     Shape(
